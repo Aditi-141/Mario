@@ -1,5 +1,4 @@
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
 
 function Card({
@@ -84,14 +83,50 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 
-type Props = {
+type GameCanvasProps = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  hud: { coins: number; grounded: boolean };
 };
 
-function GameCanvas({ canvasRef }: Props) {
+function GameCanvas({ canvasRef }: GameCanvasProps) {
+  const offscreenRef = React.useRef<OffscreenCanvas | null>(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dpr = window.devicePixelRatio || 1;
+
+    // Create OffscreenCanvas matching the visible canvas
+    offscreenRef.current = new OffscreenCanvas(canvas.width * dpr, canvas.height * dpr);
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const renderLoop = () => {
+      const offCtx = offscreenRef.current?.getContext("2d");
+      if (!offCtx) return;
+
+      if(offscreenRef && offscreenRef.current && offscreenRef.current.width){
+         // Example draw on offscreen canvas
+        offCtx.fillStyle = "#3b82f6"; // sky blue
+        offCtx.fillRect(0, 0, offscreenRef.current.width, offscreenRef.current.height);
+
+        // Copy offscreen canvas to visible canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(offscreenRef.current, 0, 0, canvas.width, canvas.height);
+
+      }
+     
+
+      requestAnimationFrame(renderLoop);
+    };
+
+    renderLoop();
+  }, [canvasRef]);
+
   return <canvas ref={canvasRef} className="block h-full w-full" />;
 }
+
 
 export {
   Card,
