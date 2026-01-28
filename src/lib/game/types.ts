@@ -41,3 +41,20 @@ export interface InputState {
   jumpHeld: boolean;
   jumpPressedThisFrame: boolean;
 }
+
+export interface GameCanvasProps {
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+}
+
+export interface EngineDeps {
+  getCanvas(): HTMLCanvasElement | null;
+  getInput(): InputState;
+  onHud(hud: { coins: number; grounded: boolean }): void;
+  onRunning(running: boolean): void;
+}
+
+export interface EngineHandle {
+  start(): void;
+  stop(): void;
+  reset(): void;
+}

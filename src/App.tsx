@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { GameShell } from "./components/game-shell";
-import { createEngine, type EngineHandle } from "./lib/game/engine";
-import type { InputState } from "./lib/game/types";
+import { createEngine } from "./lib/game/engine";
+import type {EngineHandle, InputState}  from "./lib/game/types";
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

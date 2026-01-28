@@ -113,8 +113,7 @@ export function GameShell({
         onKeyUp={handleKeyUp}
         className="relative w-[min(1000px,96vw)] aspect-video overflow-hidden rounded-[18px] border-2 border-white/10 bg-[#0b1020] shadow-[0_10px_30px_rgba(0,0,0,0.35)] outline-none focus:outline-none"
       >
-        <GameCanvas canvasRef={canvasRef} hud={hud}/>
-
+        <GameCanvas canvasRef={canvasRef}/>
         {!running?(
           <GameOverlay onStart={handleStart} onReset={handleReset} />
         ):null}

@@ -1,5 +1,6 @@
-import * as React from "react"
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils"
+import type { GameCanvasProps } from "@/lib/game/types";
 
 function Card({
   className,
@@ -83,15 +84,12 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 
-type GameCanvasProps = {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-};
 
 function GameCanvas({ canvasRef }: GameCanvasProps) {
-  const offscreenRef = React.useRef<OffscreenCanvas | null>(null);
+  const offscreenRef = useRef<OffscreenCanvas | null>(null);
 
-  React.useEffect(() => {
-    const canvas = canvasRef.current;
+  useEffect(() => {
+    const canvas = canvasRef?canvasRef.current:null;
     if (!canvas) return;
 
     const dpr = window.devicePixelRatio || 1;
@@ -126,7 +124,6 @@ function GameCanvas({ canvasRef }: GameCanvasProps) {
 
   return <canvas ref={canvasRef} className="block h-full w-full" />;
 }
-
 
 export {
   Card,
