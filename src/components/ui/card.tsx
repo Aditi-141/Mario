@@ -83,6 +83,16 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+
+type Props = {
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  hud: { coins: number; grounded: boolean };
+};
+
+function GameCanvas({ canvasRef }: Props) {
+  return <canvas ref={canvasRef} className="block h-full w-full" />;
+}
+
 export {
   Card,
   CardHeader,
@@ -91,4 +101,5 @@ export {
   CardAction,
   CardDescription,
   CardContent,
+  GameCanvas
 }
