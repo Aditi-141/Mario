@@ -7,7 +7,7 @@ export interface Rect {
   h: number;
 }
 
-export type Platform = Rect;
+export interface Platform extends Rect {}
 
 export interface Block extends Rect {
   hit: boolean;
@@ -35,6 +35,14 @@ export interface Player extends Rect {
   jumpsLeft: number;
 }
 
+export interface Enemy extends Rect {
+  vx: number;
+  vy: number;
+  grounded: boolean;
+  facing: Facing;
+  alive: boolean;
+}
+
 export interface InputState {
   left: boolean;
   right: boolean;
@@ -42,12 +50,20 @@ export interface InputState {
   jumpPressedThisFrame: boolean;
 }
 
-export interface GameCanvasProps {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-}
+/** A render surface: engine draws to `offCtx`, then calls `present()` */
+export type RenderSurface = {
+  dpr: number;
+  cssW: number;
+  cssH: number;
+
+  offscreen: OffscreenCanvas | HTMLCanvasElement;
+  offCtx: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+
+  present(): void;
+};
 
 export interface EngineDeps {
-  getCanvas(): HTMLCanvasElement | null;
+  getSurface(): RenderSurface | null;
   getInput(): InputState;
   onHud(hud: { coins: number; grounded: boolean }): void;
   onRunning(running: boolean): void;
@@ -57,4 +73,9 @@ export interface EngineHandle {
   start(): void;
   stop(): void;
   reset(): void;
+}
+
+export interface GameCanvasProps {
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  onSurface(surface: RenderSurface | null): void;
 }

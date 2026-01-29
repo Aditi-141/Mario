@@ -1,11 +1,13 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { GameShell } from "./components/game-shell";
 import { createEngine } from "./lib/game/engine";
-import type {EngineHandle, InputState}  from "./lib/game/types";
+import type { EngineHandle, InputState, RenderSurface } from "./lib/game/types";
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<EngineHandle | null>(null);
+
+  const surfaceRef = useRef<RenderSurface | null>(null);
 
   const [running, setRunning] = useState(false);
   const [hud, setHud] = useState({ coins: 0, grounded: false });
@@ -17,11 +19,14 @@ export default function App() {
     jumpPressedThisFrame: false,
   });
 
+  const handleSurface = useCallback((s: RenderSurface | null) => {
+    surfaceRef.current = s;
+  }, []);
+
   const engine = useMemo(() => {
-    // Create engine once
     if (!engineRef.current) {
       engineRef.current = createEngine({
-        getCanvas: () => canvasRef.current,
+        getSurface: () => surfaceRef.current,
         getInput: () => inputRef.current,
         onHud: (next) => setHud(next),
         onRunning: (r) => setRunning(r),
@@ -30,11 +35,16 @@ export default function App() {
     return engineRef.current;
   }, []);
 
+  useEffect(() => {
+    return () => engine.stop();
+  }, [engine]);
+
   return (
     <GameShell
       running={running}
       hud={hud}
       canvasRef={canvasRef}
+      onSurface={handleSurface}
       onStart={() => {
         engine.reset();
         engine.start();

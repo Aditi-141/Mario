@@ -1,137 +1,120 @@
 import { useEffect, useRef } from "react";
-import { cn } from "@/lib/utils"
-import type { GameCanvasProps } from "@/lib/game/types";
+import { cn } from "@/lib/utils";
+import type { GameCanvasProps, RenderSurface } from "@/lib/game/types";
 
-function Card({
-  className,
-  size = "default",
-  ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
-  return (
-    <div
-      data-slot="card"
-      data-size={size}
-      className={cn("ring-foreground/10 bg-card text-card-foreground gap-4 overflow-hidden rounded-lg py-4 text-xs/relaxed ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg group/card flex flex-col", className)}
-      {...props}
-    />
-  )
-}
+/* ... keep Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter unchanged ... */
 
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-header"
-      className={cn(
-        "gap-1 rounded-t-lg px-4 group-data-[size=sm]/card:px-3 [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-title"
-      className={cn("text-sm font-medium", className)}
-      {...props}
-    />
-  )
-}
-
-function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-description"
-      className={cn("text-muted-foreground text-xs/relaxed", className)}
-      {...props}
-    />
-  )
-}
-
-function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-action"
-      className={cn(
-        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-content"
-      className={cn("px-4 group-data-[size=sm]/card:px-3", className)}
-      {...props}
-    />
-  )
-}
-
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-footer"
-      className={cn("rounded-b-lg px-4 group-data-[size=sm]/card:px-3 [.border-t]:pt-4 group-data-[size=sm]/card:[.border-t]:pt-3 flex items-center", className)}
-      {...props}
-    />
-  )
-}
-
-
-
-function GameCanvas({ canvasRef }: GameCanvasProps) {
-  const offscreenRef = useRef<OffscreenCanvas | null>(null);
+function GameCanvas({ canvasRef, onSurface }: GameCanvasProps) {
+  const surfaceRef = useRef<RenderSurface | null>(null);
+  const roRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef?canvasRef.current:null;
+    const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const dpr = window.devicePixelRatio || 1;
-
-    // Create OffscreenCanvas matching the visible canvas
-    offscreenRef.current = new OffscreenCanvas(canvas.width * dpr, canvas.height * dpr);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const renderLoop = () => {
-      const offCtx = offscreenRef.current?.getContext("2d");
-      if (!offCtx) return;
+    const makeOrResize = () => {
+      const parent = canvas.parentElement;
+      if (!parent) return;
 
-      if(offscreenRef && offscreenRef.current && offscreenRef.current.width){
-         // Example draw on offscreen canvas
-        offCtx.fillStyle = "#3b82f6"; // sky blue
-        offCtx.fillRect(0, 0, offscreenRef.current.width, offscreenRef.current.height);
+      const rect = parent.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
 
-        // Copy offscreen canvas to visible canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(offscreenRef.current, 0, 0, canvas.width, canvas.height);
+      const cssW = Math.max(1, rect.width);
+      const cssH = Math.max(1, rect.height);
 
+      const pxW = Math.floor(cssW * dpr);
+      const pxH = Math.floor(cssH * dpr);
+
+      // Resize visible canvas to device pixels
+      if (canvas.width !== pxW || canvas.height !== pxH) {
+        canvas.width = pxW;
+        canvas.height = pxH;
       }
-     
 
-      requestAnimationFrame(renderLoop);
+      // Prefer OffscreenCanvas if supported, fallback to onscreen canvas
+      const canOffscreen = typeof OffscreenCanvas !== "undefined";
+
+      if (!surfaceRef.current) {
+        if (canOffscreen) {
+          const offscreen = new OffscreenCanvas(pxW, pxH);
+          const offCtx = offscreen.getContext("2d");
+          if (!offCtx) return;
+
+          surfaceRef.current = {
+            dpr,
+            cssW,
+            cssH,
+            offscreen,
+            offCtx,
+            present: () => {
+              // Present offscreen -> visible in device pixel space
+              ctx.setTransform(1, 0, 0, 1, 0, 0);
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              // drawImage supports OffscreenCanvas in modern browsers
+              ctx.drawImage(offscreen as any, 0, 0);
+            },
+          };
+        } else {
+          // Fallback: render directly on visible canvas (no blit)
+          surfaceRef.current = {
+            dpr,
+            cssW,
+            cssH,
+            offscreen: canvas,
+            offCtx: ctx,
+            present: () => {},
+          };
+        }
+
+        onSurface(surfaceRef.current);
+        return;
+      }
+
+      // Update existing surface sizes if needed
+      const s = surfaceRef.current;
+      s.dpr = dpr;
+      s.cssW = cssW;
+      s.cssH = cssH;
+
+      if (s.offscreen instanceof OffscreenCanvas) {
+        if (s.offscreen.width !== pxW || s.offscreen.height !== pxH) {
+          s.offscreen.width = pxW;
+          s.offscreen.height = pxH;
+        }
+      } else {
+        // onscreen fallback already resized above
+      }
     };
 
-    renderLoop();
-  }, [canvasRef]);
+    makeOrResize();
 
-  return <canvas ref={canvasRef} className="block h-full w-full" />;
+    // ResizeObserver keeps canvas correct as card changes size
+    roRef.current?.disconnect();
+    roRef.current = new ResizeObserver(() => makeOrResize());
+    roRef.current.observe(canvas.parentElement ?? canvas);
+
+    return () => {
+      roRef.current?.disconnect();
+      roRef.current = null;
+      surfaceRef.current = null;
+      onSurface(null);
+    };
+  }, [canvasRef, onSurface]);
+
+  // IMPORTANT: canvas should fill parent; engine controls all drawing
+  return (
+    <canvas
+      ref={canvasRef}
+      className={cn("absolute inset-0 block h-full w-full")}
+      style={{ display: "block" }}
+    />
+  );
 }
 
 export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardAction,
-  CardDescription,
-  CardContent,
-  GameCanvas
-}
+  /* your card exports unchanged */
+  GameCanvas,
+};

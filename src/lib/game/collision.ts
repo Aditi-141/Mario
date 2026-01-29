@@ -1,67 +1,144 @@
-import type { Player, Rect, Level } from "./types";
+// lib/game/collision.ts
+import type { Player, Rect, Level, Block } from "./types";
 import { aabbOverlap } from "./math";
 import { MAX_JUMPS } from "./constants";
+import type { AudioHandle } from "./audio";
 
-/**
- * It handles horizontal collision resolution for the player gravity, landing on platforms, bonking your head on blocks, resetting jumps, and triggering bump sounds.
- * @param player Position, velocity, jumps, grounded state
- * @param level contains platforms and blocks
- */
-export function resolveX(player: Player, level: Level) {
-  const rect: Rect = { x: player.x, y: player.y, w: player.w, h: player.h };
+const EPS = 0.01;
 
-  /**
-   * This function checks for collision
-   * @param rects this check for cosrdinates
-   * @param resetVel this is a boolean value for resetting value
-   */
-  const checkCollisions = (rects: Rect[], resetVel = true) => {
-    for (const r of rects) {
-      if (!aabbOverlap(rect, r)) continue;
-      const fromLeft = rect.x + rect.w / 2 < r.x + r.w / 2;
-      player.x = fromLeft ? r.x - player.w - 0.01 : r.x + r.w + 0.01;
-      if (resetVel) player.vx = 0;
-      rect.x = player.x;
-    }
-  };
+function rectOfPlayer(p: Player): Rect {
+  return { x: p.x, y: p.y, w: p.w, h: p.h };
+}
 
-  checkCollisions(level.platforms);
-  
-  checkCollisions(level.blocks);
+function centerX(r: Rect) {
+  return r.x + r.w / 2;
+}
+function centerY(r: Rect) {
+  return r.y + r.h / 2;
 }
 
 /**
- * It handles vertical collision resolution for the player — gravity, landing on platforms, bonking your head on blocks, resetting jumps, and triggering bump sounds.
- * @param player position, velocity, jumps, grounded state
- * @param level contains platforms and blocks
- * @param audio used to play a bump sound
+ * Sort colliders so we resolve the closest ones first.
+ * This reduces "order-dependent" jitter/misses when overlapping multiple tiles.
  */
-export function resolveY(player: Player, level: Level, audio: any, hudCoins:number) {
-  player.grounded = false;
-  const rect: Rect = { x: player.x, y: player.y, w: player.w, h: player.h };
+function sortByProximity(rect: Rect, rects: Rect[]) {
+  const cx = centerX(rect);
+  const cy = centerY(rect);
+  rects.sort((a, b) => {
+    const da = Math.abs(centerX(a) - cx) + Math.abs(centerY(a) - cy);
+    const db = Math.abs(centerX(b) - cx) + Math.abs(centerY(b) - cy);
+    return da - db;
+  });
+}
 
-  const resolve = (rects: Rect[], headHits = false) => {
-    for (const r of rects) {
-      if (!aabbOverlap(rect, r)) continue;
-      const fromAbove = rect.y + rect.h / 2 < r.y + r.h / 2;
-      if (fromAbove) {
-        player.y = r.y - player.h - 0.01;
-        player.vy = 0;
-        player.grounded = true;
-        player.jumpsLeft = MAX_JUMPS;
+/**
+ * Resolve X collisions (horizontal).
+ * Assumes engine already updated player.x by vx * dt.
+ * Uses velocity direction to decide which side to push out.
+ */
+export function resolveX(player: Player, level: Level) {
+  const rect = rectOfPlayer(player);
+
+  const colliders: Rect[] = [...level.platforms, ...level.blocks];
+  sortByProximity(rect, colliders);
+
+  // If vx is ~0 but we're overlapping (rare), fall back to minimal push-out.
+  const movingRight = player.vx > 0.0001;
+  const movingLeft = player.vx < -0.0001;
+
+  for (const r of colliders) {
+    if (!aabbOverlap(rect, r)) continue;
+
+    if (movingRight) {
+      // Player moving right -> hit left face of collider
+      player.x = r.x - rect.w - EPS;
+      player.vx = 0;
+    } else if (movingLeft) {
+      // Player moving left -> hit right face of collider
+      player.x = r.x + r.w + EPS;
+      player.vx = 0;
+    } else {
+      // Not moving horizontally: resolve by smallest penetration
+      const overlapLeft = rect.x + rect.w - r.x; // push left amount
+      const overlapRight = r.x + r.w - rect.x;  // push right amount
+
+      if (overlapLeft < overlapRight) {
+        player.x -= overlapLeft + EPS;
       } else {
-        player.y = r.y + r.h + 0.01;
-        if (player.vy < 0) player.vy = 80;
-        if (headHits && "hit" in r) {
-          r.hit = true;
+        player.x += overlapRight + EPS;
+      }
+      player.vx = 0;
+    }
+
+    rect.x = player.x; // keep rect synced
+  }
+}
+
+/**
+ * Resolve Y collisions (vertical).
+ * Assumes engine already updated player.y by vy * dt.
+ * Uses velocity direction to decide landing vs head-bonk.
+ * Returns events rather than mutating HUD.
+ */
+export function resolveY(
+  player: Player,
+  level: Level,
+  audio: AudioHandle
+): { coinsDelta: number } {
+  let coinsDelta = 0;
+
+  player.grounded = false;
+
+  const rect = rectOfPlayer(player);
+
+  // Merge platforms + blocks so we resolve vertical in one consistent pass.
+  // But we keep "block hit" behavior only for blocks.
+  const colliders: Rect[] = [...level.platforms, ...level.blocks];
+  sortByProximity(rect, colliders);
+
+  const movingDown = player.vy > 0.0001;
+  const movingUp = player.vy < -0.0001;
+
+  for (const r of colliders) {
+    if (!aabbOverlap(rect, r)) continue;
+
+    if (movingDown) {
+      // Falling down -> land on top
+      player.y = r.y - rect.h - EPS;
+      player.vy = 0;
+      player.grounded = true;
+      player.jumpsLeft = MAX_JUMPS;
+    } else if (movingUp) {
+      // Moving up -> hit from below
+      player.y = r.y + r.h + EPS;
+
+      // small downward kick to avoid sticking
+      if (player.vy < 0) player.vy = 80;
+
+      // If this collider is a block and hasn't been hit -> bump once
+      // (Platforms won't have "hit" property)
+      if ("hit" in (r as any)) {
+        const b = r as Block;
+        if (!b.hit) {
+          b.hit = true;
+          coinsDelta += 1;
           audio.bump();
-          hudCoins++;
         }
       }
-      rect.y = player.y;
-    }
-  };
+    } else {
+      // Not moving vertically but overlapping: minimal push-out
+      const overlapUp = rect.y + rect.h - r.y; // push up
+      const overlapDown = r.y + r.h - rect.y; // push down
 
-  resolve(level.platforms);
-  resolve(level.blocks, true);
+      if (overlapUp < overlapDown) {
+        player.y -= overlapUp + EPS;
+      } else {
+        player.y += overlapDown + EPS;
+      }
+    }
+
+    rect.y = player.y; // keep rect synced
+  }
+
+  return { coinsDelta };
 }
