@@ -91,7 +91,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
   let hudCoins = 0;
   const emitHud = () => deps.onHud({ coins: hudCoins, grounded: player.grounded });
 
-  // ---------------- Enemy collision helpers ----------------
+  // Enemy collision helpers 
   const rectOf = (r: Rect): Rect => ({ x: r.x, y: r.y, w: r.w, h: r.h });
 
   const resolveEnemyX = () => {

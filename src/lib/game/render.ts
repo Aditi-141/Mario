@@ -2,7 +2,7 @@ import type { Player, Rect, Block, Coin, Enemy } from "./types";
 
 type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
-// --- NEW: Pipe drawing (pure render, collision stays the same) ---
+//Pipe drawing (pure render, collision stays the same) ---
 export const drawPipe = (ctx: Ctx, r: Rect) => {
   // pipe should stand on its bottom (like mario)
   const x = r.x;
@@ -52,6 +52,12 @@ export const drawPipe = (ctx: Ctx, r: Rect) => {
   ctx.strokeRect(x + 1, y + capH - 1, w - 2, h - capH);
 };
 
+/**
+ * This function helps to draw clouds
+ * @param ctx ctx is a parameter that receives a context object when the function is called.
+ * @param x x coordinates
+ * @param y y coordinates
+ */
 export const drawCloud = (ctx: Ctx, x: number, y: number) => {
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.beginPath();
@@ -61,6 +67,12 @@ export const drawCloud = (ctx: Ctx, x: number, y: number) => {
   ctx.fill();
 };
 
+
+/**
+ * This fcuntion helps to draw platform.
+ * @param ctx ctx is a parameter that receives a context object when the function is called.
+ * @param plat Platform attributes.
+ */
 export const drawPlatform = (ctx: Ctx, plat: Rect) => {
   if (plat.y >= 450) {
     ctx.fillStyle = "#14532d";
@@ -75,6 +87,11 @@ export const drawPlatform = (ctx: Ctx, plat: Rect) => {
   }
 };
 
+/**
+ * This function helps to draw coin blocks
+ * @param ctx ctx is a parameter that receives a context object when the function is called.
+ * @param b Block attributes.
+ */
 export const drawBlock = (ctx: Ctx, b: Block) => {
   ctx.fillStyle = b.hit ? "#a3a3a3" : "#f59e0b";
   ctx.fillRect(b.x, b.y, b.w, b.h);
@@ -90,6 +107,11 @@ export const drawBlock = (ctx: Ctx, b: Block) => {
   ctx.fillText(b.hit ? "!" : "?", b.x + b.w / 2, b.y + b.h / 2 + 1);
 };
 
+/**
+ * This function draws coins
+ * @param ctx Ctx is a parameter that receives a context object when the function is called.
+ * @param c Coins attributes
+ */
 export const drawCoin = (ctx: Ctx, c: Coin) => {
   ctx.beginPath();
   ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
@@ -106,6 +128,11 @@ export const drawCoin = (ctx: Ctx, c: Coin) => {
   ctx.fill();
 };
 
+/**
+ * This function draw Mario
+ * @param ctx ctx is a parameter that receives a context object when the function is called.
+ * @param p Player Attributes.
+ */
 export const drawMario = (ctx: Ctx, p: Player) => {
   const { x, y, w, h, facing, grounded } = p;
 
@@ -167,6 +194,11 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   ctx.restore();
 };
 
+/**
+ * This function draws villain component.
+ * @param ctx ctx is a parameter that receives a context object when the function is called.
+ * @param e Enemy attributes.
+ */
 export const drawVillain = (ctx: Ctx, e: Enemy) => {
   const { x, y, w, h, facing, alive } = e;
 

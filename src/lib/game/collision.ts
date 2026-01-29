@@ -13,6 +13,7 @@ function rectOfPlayer(p: Player): Rect {
 function centerX(r: Rect) {
   return r.x + r.w / 2;
 }
+
 function centerY(r: Rect) {
   return r.y + r.h / 2;
 }
@@ -20,6 +21,8 @@ function centerY(r: Rect) {
 /**
  * Sort colliders so we resolve the closest ones first.
  * This reduces "order-dependent" jitter/misses when overlapping multiple tiles.
+ * @param rect coordinates of object
+ * @param rects multiple coordinates of object
  */
 function sortByProximity(rect: Rect, rects: Rect[]) {
   const cx = centerX(rect);
@@ -35,6 +38,8 @@ function sortByProximity(rect: Rect, rects: Rect[]) {
  * Resolve X collisions (horizontal).
  * Assumes engine already updated player.x by vx * dt.
  * Uses velocity direction to decide which side to push out.
+ * @param player Attributes of player
+ * @param level Map layout
  */
 export function resolveX(player: Player, level: Level) {
   const rect = rectOfPlayer(player);
@@ -79,6 +84,10 @@ export function resolveX(player: Player, level: Level) {
  * Assumes engine already updated player.y by vy * dt.
  * Uses velocity direction to decide landing vs head-bonk.
  * Returns events rather than mutating HUD.
+ * @param player attributes of player
+ * @param level map layout
+ * @param audio sound for movements
+ * @returns 
  */
 export function resolveY(
   player: Player,
