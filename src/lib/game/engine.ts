@@ -17,7 +17,6 @@ import {
 export function createEngine(deps: EngineDeps): EngineHandle {
   const audio = createAudio();
 
-  // --- WORLD LAYOUT HELPERS ---
   // Matches your ground platform y.
   const GROUND_Y = 470;
 
@@ -140,7 +139,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     }
   };
 
-  // ---------------- Simulation step ----------------
+  //  Simulation step
   const step = (dt: number) => {
     const input = deps.getInput();
 
@@ -229,7 +228,6 @@ export function createEngine(deps: EngineDeps): EngineHandle {
           hudCoins += 3;
           audio.coin();
         } else {
-          // simple "hurt"
           Object.assign(player, {
             x: 60,
             y: 400,
@@ -247,7 +245,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     }
   };
 
-  // ---------------- Render ----------------
+  // Render
   const render = () => {
     const surface = deps.getSurface();
     if (!surface) return;
@@ -306,7 +304,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     surface.present();
   };
 
-  // ---------------- Main loop ----------------
+  // Main loop
   const frame = (t: number) => {
     const dt = clamp((t - lastTime) / 1000, 0, MAX_DT);
     lastTime = t;
@@ -327,7 +325,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     if (running) rafId = requestAnimationFrame(frame);
   };
 
-  // ---------------- Public API ----------------
+  // Public API
   const start = () => {
     if (running) return;
     audio.ensure();

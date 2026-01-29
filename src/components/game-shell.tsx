@@ -1,24 +1,9 @@
 import React, { useCallback, useRef } from "react";
 import { GameCanvas } from "./ui/card";
 import { GameOverlay } from "./game-overlay";
-import type { InputState, RenderSurface } from "../lib/game/types";
+import type { GameShellProps} from "../lib/game/types";
 import { Button } from "./ui/button";
 
-type GameHud = {
-  coins: number;
-  grounded: boolean;
-};
-
-type GameShellProps = {
-  running: boolean;
-  hud: GameHud;
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  onSurface: (s: RenderSurface | null) => void;
-  onStart: () => void;
-  onReset: () => void;
-  onStop: () => void;
-  onInput: (updater: (prev: InputState) => InputState) => void;
-};
 
 const isLeft = (code: string) => code === "ArrowLeft" || code === "KeyA";
 const isRight = (code: string) => code === "ArrowRight" || code === "KeyD";

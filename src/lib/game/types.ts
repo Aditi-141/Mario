@@ -79,3 +79,19 @@ export interface GameCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onSurface(surface: RenderSurface | null): void;
 }
+
+export interface GameHud{
+  coins: number;
+  grounded: boolean;
+};
+
+export interface GameShellProps {
+  running: boolean;
+  hud: GameHud;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  onSurface: (s: RenderSurface | null) => void;
+  onStart: () => void;
+  onReset: () => void;
+  onStop: () => void;
+  onInput: (updater: (prev: InputState) => InputState) => void;
+};

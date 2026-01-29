@@ -41,7 +41,7 @@ export const drawPipe = (ctx: Ctx, r: Rect) => {
   ctx.fillStyle = GREEN_D2;
   ctx.fillRect(x - lip + 2, y + 2, w + lip * 2 - 4, Math.max(3, capH - 6));
 
-  // Mouth opening (a darker hole)
+  // Mouth opening
   ctx.fillStyle = "#064e3b";
   ctx.fillRect(x + lip, y + Math.floor(capH * 0.35), innerW, Math.max(4, Math.floor(capH * 0.35)));
 
@@ -69,7 +69,7 @@ export const drawCloud = (ctx: Ctx, x: number, y: number) => {
 
 
 /**
- * This fcuntion helps to draw platform.
+ * This function helps to draw platform.
  * @param ctx ctx is a parameter that receives a context object when the function is called.
  * @param plat Platform attributes.
  */
@@ -142,7 +142,6 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   ctx.translate(-(x + w / 2), -(y + h / 2));
 
   const bob = grounded ? 0 : 1;
-
   const RED = "#dc2626";
   const RED_DARK = "#b91c1c";
   const BLUE = "#1d4ed8";
