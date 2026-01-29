@@ -271,26 +271,26 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     ctx.scale(scale, scale);
 
     // Clouds
-    [[120, 90], [360, 70], [720, 110]].forEach(([x, y]) => drawCloud(ctx as any, x, y));
+    [[120, 90], [360, 70], [720, 110]].forEach(([x, y]) => drawCloud(ctx, x, y));
 
     // Platforms (pipe drawn where its collider actually is)
     level.platforms.forEach((p) => {
       if (p.x === PIPE_X && p.y === PIPE_TOP_Y && p.w === PIPE_W && p.h === PIPE_H) {
-        drawPipe(ctx as any, p);
+        drawPipe(ctx, p);
       } else {
-        drawPlatform(ctx as any, p);
+        drawPlatform(ctx, p);
       }
     });
 
     // Blocks / coins
-    level.blocks.forEach((b) => drawBlock(ctx as any, b));
+    level.blocks.forEach((b) => drawBlock(ctx, b));
     level.coins.forEach((c) => {
-      if (!c.taken) drawCoin(ctx as any, c);
+      if (!c.taken) drawCoin(ctx, c);
     });
 
     // Characters
-    drawVillain(ctx as any, enemy);
-    drawMario(ctx as any, player);
+    drawVillain(ctx, enemy);
+    drawMario(ctx, player);
 
     ctx.restore();
 

@@ -51,7 +51,7 @@ function GameCanvas({ canvasRef, onSurface }: GameCanvasProps) {
             present: () => {
               ctx.setTransform(1, 0, 0, 1, 0, 0);
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              ctx.drawImage(offscreen as any, 0, 0);
+              ctx.drawImage(offscreen, 0, 0);
             },
           };
         } else {

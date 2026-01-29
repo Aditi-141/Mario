@@ -7,6 +7,10 @@ export type AudioHandle = {
   bump(): void;
 };
 
+interface Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
 export function createAudio(): AudioHandle {
   let ctx: AudioContext | null = null;
   let master: GainNode | null = null;
@@ -15,7 +19,7 @@ export function createAudio(): AudioHandle {
   function ensure() {
     if (ready) return true;
     const AudioCtx =
-      window.AudioContext || (window as any).webkitAudioContext;
+      window.AudioContext || (window as Window).webkitAudioContext;
     if (!AudioCtx) return false;
 
     ctx = new AudioCtx();

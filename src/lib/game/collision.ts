@@ -126,7 +126,7 @@ export function resolveY(
 
       // If this collider is a block and hasn't been hit -> bump once
       // (Platforms won't have "hit" property)
-      if ("hit" in (r as any)) {
+      if ("hit" in (r as Block)) {
         const b = r as Block;
         if (!b.hit) {
           b.hit = true;
