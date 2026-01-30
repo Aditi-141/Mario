@@ -21,6 +21,8 @@ export function createPlayer(): Player {
     facing: 1,
     coyote: 0,
     jumpsLeft: MAX_JUMPS,
+    lives: 3,
+    invincible:0
   };
 }
 
@@ -29,8 +31,10 @@ export function createPlayer(): Player {
  * @param p players attributes
  */
 export function respawnPlayer(p: Player) {
+  
   Object.assign(p, createPlayer());
 }
+
 
 /**
  * This function helps to updates coordinates of players movement
@@ -61,12 +65,15 @@ export function updatePlayer(
   if (input.left) player.facing = -1;
   if (input.right) player.facing = 1;
 
+  // Gravity
   applyGravity(player, dt);
 
+  // Coyote time
   player.coyote = player.grounded
     ? COYOTE_TIME
     : Math.max(0, player.coyote - dt);
 
+  // Jumping
   if (input.jumpPressedThisFrame) {
     input.jumpPressedThisFrame = false;
     if (player.grounded || player.coyote > 0 || player.jumpsLeft > 0) {
@@ -78,9 +85,22 @@ export function updatePlayer(
     }
   }
 
+  if (player.invincible > 0) {
+    player.invincible -= dt;
+    if (player.invincible < 0) player.invincible = 0;
+  }
+
+
+  // Physics integration
   integrateX(player, dt);
   resolveX(player, level);
 
   integrateY(player, dt);
   resolveY(player, level, audio);
+
+  // Refill jumps on landing
+  if (player.grounded) {
+    player.jumpsLeft = MAX_JUMPS;
+  }
 }
+

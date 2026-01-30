@@ -36,6 +36,8 @@ export interface Character{
 export interface Player extends Rect, Character { 
   coyote: number;
   jumpsLeft: number;
+  lives: number;
+  invincible: number
 }
 
 export interface Enemy extends Rect, Character {

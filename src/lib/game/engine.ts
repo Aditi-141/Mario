@@ -34,15 +34,22 @@ export function createEngine(deps: EngineDeps) {
   // Tracks which blocks already awarded coins
   let rewardedBlocks = new WeakSet<object>();
 
-  // HUD
-  const emitHud = () => {
-    deps.onHud({
-      coins: hudCoins,
-      grounded: player.grounded,
-    });
+  let lastHudCoins = -1;
+  let lastHudGrounded = false;
+
+  const emitHud = (force = false) => {
+    const grounded = player.grounded;
+
+    if (!force && hudCoins === lastHudCoins && grounded === lastHudGrounded) {
+      return; // nothing changed 
+    }
+
+    lastHudCoins = hudCoins;
+    lastHudGrounded = grounded;
+
+    deps.onHud({ coins: hudCoins, grounded });
   };
 
-  // Simulation step
   const step = (dt: number) => {
     updatePlayer(player, level, deps.getInput(), audio, dt);
     updateEnemy(enemy, level, dt);
@@ -74,7 +81,7 @@ export function createEngine(deps: EngineDeps) {
     }
 
     // Player vs Enemy
-    if (enemy.alive && aabbOverlap(player, enemy)) {
+    if (!player.invincible && enemy.alive && aabbOverlap(player, enemy)) {
       const stomp = player.vy > 0 && player.y + player.h - enemy.y < 14;
 
       if (stomp) {
@@ -83,14 +90,16 @@ export function createEngine(deps: EngineDeps) {
         hudCoins += 3;
         audio.coin();
       } else {
-        respawnPlayer(player);
+        player.lives -= 1;
+        if (player.lives > 0) {
+          respawnPlayer(player);
+        }
         hudCoins = 0;
         audio.bump();
       }
     }
   };
 
-  // Render
   const render = () => {
     const surface = deps.getSurface();
     if (!surface) return;
@@ -105,7 +114,6 @@ export function createEngine(deps: EngineDeps) {
     ctx.fillStyle = "#3b82f6";
     ctx.fillRect(0, 0, cssW, cssH);
 
-    // Fit WORLD into surface
     const scale = Math.min(cssW / WORLD.w, cssH / WORLD.h);
     const offsetX = (cssW - WORLD.w * scale) / 2;
     const offsetY = (cssH - WORLD.h * scale) / 2;
@@ -114,29 +122,22 @@ export function createEngine(deps: EngineDeps) {
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
 
-    // Clouds
-    [[120, 90], [360, 70], [720, 110]].forEach(([x, y]) =>
-      drawCloud(ctx, x, y)
-    );
+    [[120, 90], [360, 70], [720, 110]].forEach(([x, y]) => drawCloud(ctx, x, y));
 
-    // Platforms
     level.platforms.forEach((p) => {
       (p as any).kind === "pipe" ? drawPipe(ctx, p) : drawPlatform(ctx, p);
     });
 
-    // Blocks / Coins
     level.blocks.forEach((b) => drawBlock(ctx, b));
     level.coins.forEach((c) => {
       if (!c.taken) drawCoin(ctx, c);
     });
 
-    // Characters
     drawVillain(ctx, enemy);
     drawMario(ctx, player);
 
     ctx.restore();
 
-    // HUD (visual)
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.fillRect(12, 12, 220, 44);
     ctx.fillStyle = "white";
@@ -145,7 +146,6 @@ export function createEngine(deps: EngineDeps) {
     surface.present();
   };
 
-  // Main loop
   const frame = (t: number) => {
     const dt = clamp((t - lastTime) / 1000, 0, MAX_DT);
     lastTime = t;
@@ -189,7 +189,6 @@ export function createEngine(deps: EngineDeps) {
     level.blocks.forEach((b: any) => (b.hit = false));
     level.coins.forEach((c) => (c.taken = false));
 
-    //reset block rewards too
     rewardedBlocks = new WeakSet<object>();
 
     respawnPlayer(player);
@@ -197,7 +196,7 @@ export function createEngine(deps: EngineDeps) {
 
     hudCoins = 0;
     accumulator = 0;
-    emitHud();
+    emitHud(true);
   };
 
   return { start, stop, reset };

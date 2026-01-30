@@ -6,7 +6,7 @@ type GameOverlayProps = {
   onReset: () => void;
 };
 
-export function GameOverlay({ onStart, onReset }: GameOverlayProps) {
+export function GameOverlay({ onStart}: GameOverlayProps) {
   return (
     <div className="absolute inset-0 grid place-items-center bg-black/45 p-4 text-center backdrop-blur-[2px]">
       <div className="max-w-[520px]">

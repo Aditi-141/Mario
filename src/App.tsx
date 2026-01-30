@@ -22,7 +22,6 @@ export default function App() {
     moveX: 0,
     moveY: 0,
   });
-
   const handleSurface = useCallback((s: RenderSurface | null) => {
     surfaceRef.current = s;
   }, []);
@@ -38,10 +37,6 @@ export default function App() {
     }
     return engineRef.current;
   }, []);
-
-  useEffect(() => {
-    return () => engine.stop();
-  }, [engine]);
 
   return (
     <GameShell

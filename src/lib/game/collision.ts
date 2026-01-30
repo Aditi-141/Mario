@@ -78,15 +78,6 @@ export function resolveX(player: Player, level: Level) {
       player.x = r.x + r.w + EPS;
       player.vx = 0;
     } else {
-      // Not moving horizontally: resolve by smallest penetration
-      const overlapLeft = rect.x + rect.w - r.x; // push left amount
-      const overlapRight = r.x + r.w - rect.x;  // push right amount
-
-      if (overlapLeft < overlapRight) {
-        player.x -= overlapLeft + EPS;
-      } else {
-        player.x += overlapRight + EPS;
-      }
       player.vx = 0;
     }
 

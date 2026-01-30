@@ -26,10 +26,26 @@ export function createAudio(): AudioHandle {
     return true;
   }
 
+  /**
+   * Resumes the audio context if it exists and is currently suspended.
+   * Useful for unlocking audio playback in browsers that require user interaction.
+   */
   function resume() {
     ctx?.resume?.();
   }
 
+  /**
+ * Plays a single audio tone using a Web Audio oscillator.
+ * 
+ * @param opts - Configuration options for the tone:
+ *   - type: The waveform type of the oscillator (default: 'sine').
+ *   - freq: The starting frequency of the tone in Hz.
+ *   - dur: Duration of the tone in seconds.
+ *   - gain: Volume of the tone (0.0 to 1.0).
+ *   - sweepTo: Optional target frequency for a frequency sweep.
+ * @returns An object containing the oscillator and gain nodes, 
+ *          which can be used to manipulate or stop the tone manually.
+ */
   function playTone(opts: {
     type?: OscillatorType;
     freq: number;

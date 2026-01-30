@@ -8,6 +8,8 @@ export const WORLD = {
   jumpVel: 800,
   friction: 0.86,
   airFriction: 0.96,
+  deathY: 600,
+
 } as const;
 
 export const MAX_DT = 0.033;
