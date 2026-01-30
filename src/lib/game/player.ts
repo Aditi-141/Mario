@@ -1,8 +1,20 @@
 // lib/game/player.ts
-import type { Player, Level, Rect } from "./types";
+import type { Player, Level, AudioHandle } from "./types";
 import { WORLD, MAX_JUMPS, COYOTE_TIME } from "./constants";
 import { resolveX, resolveY } from "./collision";
 import { applyGravity, integrateX, integrateY } from "./physics";
+
+export interface PlayerInput {
+  left: boolean
+  right: boolean
+  jump: boolean
+  attack: boolean
+  jumpPressedThisFrame: boolean
+  moveX: number
+  moveY: number
+}
+
+export type PlayerAudio = Pick<AudioHandle, "jump" | "land" | "coin" | "bump"|"ensure"|"resume">;
 
 export function createPlayer(): Player {
   return {
@@ -26,8 +38,8 @@ export function respawnPlayer(p: Player) {
 export function updatePlayer(
   player: Player,
   level: Level,
-  input: any,
-  audio: any,
+  input: PlayerInput,
+  audio: PlayerAudio,
   dt: number
 ) {
   const accel = player.grounded ? WORLD.moveSpeed : WORLD.airMoveSpeed;
@@ -35,7 +47,10 @@ export function updatePlayer(
   const smoothing = player.grounded ? 0.2 : 0.1;
 
   player.vx += (targetVx - player.vx) * smoothing;
-  player.vx *= Math.pow(player.grounded ? WORLD.friction : WORLD.airFriction, dt / (1 / 60));
+  player.vx *= Math.pow(
+    player.grounded ? WORLD.friction : WORLD.airFriction,
+    dt / (1 / 60)
+  );
   if (Math.abs(player.vx) < 1) player.vx = 0;
 
   if (input.left) player.facing = -1;
@@ -43,7 +58,9 @@ export function updatePlayer(
 
   applyGravity(player, dt);
 
-  player.coyote = player.grounded ? COYOTE_TIME : Math.max(0, player.coyote - dt);
+  player.coyote = player.grounded
+    ? COYOTE_TIME
+    : Math.max(0, player.coyote - dt);
 
   if (input.jumpPressedThisFrame) {
     input.jumpPressedThisFrame = false;

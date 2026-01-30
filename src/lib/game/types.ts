@@ -48,6 +48,10 @@ export interface InputState {
   right: boolean;
   jumpHeld: boolean;
   jumpPressedThisFrame: boolean;
+  jump: boolean;
+  attack: boolean;
+  moveX: number;
+  moveY: number; 
 }
 
 /** A render surface: engine draws to `offCtx`, then calls `present()` */
@@ -108,3 +112,4 @@ export interface AudioHandle {
   coin(): void;
   bump(): void;
 };
+

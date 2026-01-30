@@ -67,7 +67,6 @@ export const drawCloud = (ctx: Ctx, x: number, y: number) => {
   ctx.fill();
 };
 
-
 /**
  * This function helps to draw platform.
  * @param ctx ctx is a parameter that receives a context object when the function is called.
@@ -133,7 +132,6 @@ export const drawCoin = (ctx: Ctx, c: Coin) => {
  * @param ctx ctx is a parameter that receives a context object when the function is called.
  * @param p Player Attributes.
 */
-
 export const drawMario = (ctx: Ctx, p: Player) => {
   const { x, y, w, h, facing, grounded } = p;
 
@@ -182,7 +180,7 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   ctx.fillRect(x + px(9), y + py(28) + bob, px(5), py(10));
   ctx.fillRect(x + w - px(14), y + py(28) + bob, px(5), py(10));
 
-  // --- Overalls ---
+  // Overalls
   ctx.fillStyle = BLUE;
   rrect(px(6), py(22), w - px(12), py(18), px(3));
 
@@ -196,7 +194,7 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   rrect(px(10), py(25), px(3), px(3), px(1));
   rrect(w - px(13), py(25), px(3), px(3), px(1));
 
-  // --- Shirt ---
+  // Shirt
   ctx.fillStyle = RED;
   rrect(px(6), py(16), w - px(12), py(8), px(3));
 
@@ -210,7 +208,7 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   rrect(px(1), py(25), px(7), py(6), px(3));
   rrect(w - px(8), py(25), px(7), py(6), px(3));
 
-  // --- Face ---
+  // Face
   ctx.fillStyle = SKIN;
   rrect(px(8), py(6), w - px(16), py(14), px(4));
 
@@ -230,7 +228,7 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   rrect(px(15), py(12), px(2), px(2), px(1));
   rrect(px(21), py(12), px(2), px(2), px(1));
 
-  // --- Hat ---
+  // Hat
   ctx.fillStyle = RED;
   rrect(px(6), py(1), w - px(12), py(8), px(4));
 

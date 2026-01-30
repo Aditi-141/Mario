@@ -17,6 +17,10 @@ export default function App() {
     right: false,
     jumpHeld: false,
     jumpPressedThisFrame: false,
+    jump: false,
+    attack: false,
+    moveX: 0,
+    moveY: 0,
   });
 
   const handleSurface = useCallback((s: RenderSurface | null) => {
