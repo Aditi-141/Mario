@@ -132,16 +132,20 @@ export const drawCoin = (ctx: Ctx, c: Coin) => {
  * This function draw Mario
  * @param ctx ctx is a parameter that receives a context object when the function is called.
  * @param p Player Attributes.
- */
+*/
+
 export const drawMario = (ctx: Ctx, p: Player) => {
   const { x, y, w, h, facing, grounded } = p;
 
+  const dir = facing < 0 ? -1 : 1;
+
   ctx.save();
   ctx.translate(x + w / 2, y + h / 2);
-  ctx.scale(facing, 1);
+  ctx.scale(dir, 1);
   ctx.translate(-(x + w / 2), -(y + h / 2));
 
   const bob = grounded ? 0 : 1;
+
   const RED = "#dc2626";
   const RED_DARK = "#b91c1c";
   const BLUE = "#1d4ed8";
@@ -155,40 +159,95 @@ export const drawMario = (ctx: Ctx, p: Player) => {
   const px = (n: number) => (n / 34) * w;
   const py = (n: number) => (n / 44) * h;
 
+  const rrect = (rx: number, ry: number, rw: number, rh: number, rr: number) => {
+    const X = x + rx;
+    const Y = y + ry + bob;
+    ctx.beginPath();
+    ctx.moveTo(X + rr, Y);
+    ctx.arcTo(X + rw, Y, X + rw, Y + rh, rr);
+    ctx.arcTo(X + rw, Y + rh, X, Y + rh, rr);
+    ctx.arcTo(X, Y + rh, X, Y, rr);
+    ctx.arcTo(X, Y, X + rw, Y, rr);
+    ctx.closePath();
+    ctx.fill();
+  };
+
+  // --- Shoes ---
   ctx.fillStyle = BLACK;
-  ctx.fillRect(x + px(4), y + h - py(9) + bob, px(12), py(7));
-  ctx.fillRect(x + w - px(16), y + h - py(9) + bob, px(12), py(7));
+  rrect(px(3), h - py(7), px(13), py(6), px(2));
+  rrect(w - px(16), h - py(7), px(13), py(6), px(2));
 
-  ctx.fillStyle = BLUE;
-  ctx.fillRect(x + px(6), y + py(20) + bob, w - px(12), py(20));
-
+  // --- Legs ---
   ctx.fillStyle = BLUE_DARK;
-  ctx.fillRect(x + px(10), y + py(18) + bob, px(4), py(10));
-  ctx.fillRect(x + w - px(14), y + py(18) + bob, px(4), py(10));
+  ctx.fillRect(x + px(9), y + py(28) + bob, px(5), py(10));
+  ctx.fillRect(x + w - px(14), y + py(28) + bob, px(5), py(10));
 
+  // --- Overalls ---
+  ctx.fillStyle = BLUE;
+  rrect(px(6), py(22), w - px(12), py(18), px(3));
+
+  // Straps
+  ctx.fillStyle = BLUE_DARK;
+  rrect(px(8), py(18), px(5), py(10), px(2));
+  rrect(w - px(13), py(18), px(5), py(10), px(2));
+
+  // Buttons
   ctx.fillStyle = YELLOW;
-  ctx.fillRect(x + px(11), y + py(26) + bob, px(2.5), px(2.5));
-  ctx.fillRect(x + w - px(13.5), y + py(26) + bob, px(2.5), px(2.5));
+  rrect(px(10), py(25), px(3), px(3), px(1));
+  rrect(w - px(13), py(25), px(3), px(3), px(1));
 
+  // --- Shirt ---
   ctx.fillStyle = RED;
-  ctx.fillRect(x + px(6), y + py(14) + bob, w - px(12), py(12));
+  rrect(px(6), py(16), w - px(12), py(8), px(3));
 
-  ctx.fillStyle = WHITE;
-  ctx.fillRect(x + px(2), y + py(24) + bob, px(6), py(6));
-  ctx.fillRect(x + w - px(8), y + py(24) + bob, px(6), py(6));
-
-  ctx.fillStyle = SKIN;
-  ctx.fillRect(x + px(9), y + py(6) + bob, w - px(18), py(16));
-
+  // Sleeves
   ctx.fillStyle = RED_DARK;
-  ctx.fillRect(x + px(7), y + py(1) + bob, w - px(14), py(8));
-  ctx.fillRect(x + px(6), y + py(7) + bob, w - px(12), py(3));
+  rrect(px(2), py(20), px(7), py(8), px(3));
+  rrect(w - px(9), py(20), px(7), py(8), px(3));
 
+  // Gloves
+  ctx.fillStyle = WHITE;
+  rrect(px(1), py(25), px(7), py(6), px(3));
+  rrect(w - px(8), py(25), px(7), py(6), px(3));
+
+  // --- Face ---
+  ctx.fillStyle = SKIN;
+  rrect(px(8), py(6), w - px(16), py(14), px(4));
+
+  // Nose
+  ctx.fillStyle = SKIN;
+  rrect(px(18), py(12), px(6), py(5), px(2));
+
+  // Moustache
   ctx.fillStyle = BROWN;
-  ctx.fillRect(x + px(12), y + py(16) + bob, px(12), py(3));
+  rrect(px(10), py(14), w - px(20), py(5), px(3));
 
+  // Eyes
+  ctx.fillStyle = WHITE;
+  rrect(px(13), py(10), px(5), py(5), px(2));
+  rrect(px(19), py(10), px(5), py(5), px(2));
   ctx.fillStyle = BLACK;
-  ctx.fillRect(x + px(22), y + py(10) + bob, px(3), px(3));
+  rrect(px(15), py(12), px(2), px(2), px(1));
+  rrect(px(21), py(12), px(2), px(2), px(1));
+
+  // --- Hat ---
+  ctx.fillStyle = RED;
+  rrect(px(6), py(1), w - px(12), py(8), px(4));
+
+  // Brim
+  ctx.fillStyle = RED_DARK;
+  rrect(px(5), py(7), w - px(10), py(3), px(2));
+
+  // Badge
+  ctx.fillStyle = WHITE;
+  rrect(px(14), py(4), px(6), py(5), px(2));
+
+  // "M" (simple blocky)
+  ctx.fillStyle = RED_DARK;
+  ctx.fillRect(x + px(15), y + py(5) + bob, px(1.2), py(3));
+  ctx.fillRect(x + px(18), y + py(5) + bob, px(1.2), py(3));
+  ctx.fillRect(x + px(16.2), y + py(6) + bob, px(1.0), py(1));
+  ctx.fillRect(x + px(17.0), y + py(6) + bob, px(1.0), py(1));
 
   ctx.restore();
 };

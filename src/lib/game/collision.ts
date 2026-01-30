@@ -2,7 +2,7 @@
 import type { Player, Rect, Level, Block } from "./types";
 import { aabbOverlap } from "./math";
 import { MAX_JUMPS } from "./constants";
-import type { AudioHandle } from "./audio";
+import type { AudioHandle } from "./types";
 
 const EPS = 0.01;
 
@@ -93,15 +93,14 @@ export function resolveY(
   player: Player,
   level: Level,
   audio: AudioHandle
-): { coinsDelta: number } {
+): { coinsDelta: number; hitBlocks: Block[] } {
   let coinsDelta = 0;
+  const hitBlocks: Block[] = [];
 
   player.grounded = false;
 
   const rect = rectOfPlayer(player);
 
-  // Merge platforms + blocks so we resolve vertical in one consistent pass.
-  // But we keep "block hit" behavior only for blocks.
   const colliders: Rect[] = [...level.platforms, ...level.blocks];
   sortByProximity(rect, colliders);
 
@@ -112,33 +111,32 @@ export function resolveY(
     if (!aabbOverlap(rect, r)) continue;
 
     if (movingDown) {
-      // Falling down -> land on top
+      // Falling land on top
       player.y = r.y - rect.h - EPS;
       player.vy = 0;
       player.grounded = true;
       player.jumpsLeft = MAX_JUMPS;
     } else if (movingUp) {
-      // Moving up -> hit from below
+      // Moving up  hit from below
       player.y = r.y + r.h + EPS;
 
-      // small downward kick to avoid sticking
-      if (player.vy < 0) player.vy = 80;
+      // Small downward kick to avoid sticking
+      if (player.vy < 0) player.vy = 10;
 
       // If this collider is a block and hasn't been hit -> bump once
-      // (Platforms won't have "hit" property)
       if ("hit" in (r as Block)) {
         const b = r as Block;
         if (!b.hit) {
           b.hit = true;
-          coinsDelta += 1;
+          coinsDelta += 1; // Add coin
+          hitBlocks.push(b); // track block for engine step
           audio.bump();
         }
       }
     } else {
-      // Not moving vertically but overlapping: minimal push-out
+      // Minimal push-out if overlapping but not moving vertically
       const overlapUp = rect.y + rect.h - r.y; // push up
       const overlapDown = r.y + r.h - rect.y; // push down
-
       if (overlapUp < overlapDown) {
         player.y -= overlapUp + EPS;
       } else {
@@ -149,5 +147,5 @@ export function resolveY(
     rect.y = player.y; // keep rect synced
   }
 
-  return { coinsDelta };
+  return { coinsDelta, hitBlocks };
 }

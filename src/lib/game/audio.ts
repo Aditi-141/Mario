@@ -1,15 +1,6 @@
-export type AudioHandle = {
-  ensure(): boolean;
-  resume(): void;
-  jump(): void;
-  land(): void;
-  coin(): void;
-  bump(): void;
-};
+import type { AudioHandle,Window } from "./types";
 
-interface Window {
-  webkitAudioContext?: typeof AudioContext;
-}
+
 
 export function createAudio(): AudioHandle {
   let ctx: AudioContext | null = null;

@@ -95,3 +95,16 @@ export interface GameShellProps {
   onStop: () => void;
   onInput: (updater: (prev: InputState) => InputState) => void;
 };
+
+export interface Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
+export interface AudioHandle {
+  ensure(): boolean;
+  resume(): void;
+  jump(): void;
+  land(): void;
+  coin(): void;
+  bump(): void;
+};

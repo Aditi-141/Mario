@@ -20,12 +20,6 @@ export function GameOverlay({ onStart, onReset }: GameOverlayProps) {
           >
             Start
           </Button>
-
-          <Button
-            onClick={onReset}
-          >
-            Reset
-          </Button>
         </div>
       </div>
     </div>

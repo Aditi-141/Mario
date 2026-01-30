@@ -5,7 +5,7 @@ export const WORLD = {
   maxFall: 2200,
   moveSpeed: 320,
   airMoveSpeed: 280,
-  jumpVel: 820,
+  jumpVel: 800,
   friction: 0.86,
   airFriction: 0.96,
 } as const;
