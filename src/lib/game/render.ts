@@ -33,7 +33,7 @@ export const drawPipe = (ctx: Ctx, r: Rect) => {
   ctx.fillStyle = GREEN_D2;
   ctx.fillRect(x + Math.floor(w * 0.72), y + capH, Math.floor(w * 0.18), h - capH);
 
-  // Cap (top)
+  // Cap
   ctx.fillStyle = GREEN_D;
   ctx.fillRect(x - lip, y, w + lip * 2, capH);
 
@@ -112,6 +112,7 @@ export const drawBlock = (ctx: Ctx, b: Block) => {
  * @param c Coins attributes
  */
 export const drawCoin = (ctx: Ctx, c: Coin) => {
+
   ctx.beginPath();
   ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
   ctx.fillStyle = "#facc15";

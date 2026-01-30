@@ -1,4 +1,3 @@
-// lib/game/engine.ts
 import { createAudio } from "./audio";
 import type { EngineDeps, Rect } from "./types";
 import { WORLD, MAX_DT } from "./constants";

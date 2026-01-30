@@ -3,6 +3,10 @@ import { applyGravity, integrateX, integrateY } from "./physics";
 import { aabbOverlap } from "./math";
 import { GROUND_Y } from "./level";
 
+/**
+ * This function creates enemy
+ * @returns returns enemys attributes
+ */
 export function createEnemy(): Enemy {
   return {
     x: 620,
@@ -17,10 +21,21 @@ export function createEnemy(): Enemy {
   };
 }
 
+/**
+ * This functions spawns enemy
+ * @param enemy enemy coordinate
+ */
 export function respawnEnemy(enemy: Enemy) {
   Object.assign(enemy, createEnemy());
 }
 
+/**
+ * This function updates enemy attibutes
+ * @param enemy enemy coordinate
+ * @param level Map coordiantes
+ * @param dt delay time
+ * @returns 
+ */
 export function updateEnemy(enemy: Enemy, level: Level, dt: number) {
   if (!enemy.alive) return;
 
@@ -34,6 +49,11 @@ export function updateEnemy(enemy: Enemy, level: Level, dt: number) {
   if (Math.abs(enemy.vx) < 10) enemy.vx = enemy.facing * 70;
 }
 
+/**
+ * This function updates enemy location on x axis
+ * @param enemy enemy coordinates
+ * @param level map coordinates
+ */
 function resolveEnemyX(enemy: Enemy, level: Level) {
   const er: Rect = enemy;
   for (const c of [...level.platforms, ...level.blocks]) {
@@ -44,6 +64,11 @@ function resolveEnemyX(enemy: Enemy, level: Level) {
   }
 }
 
+/**
+ * This function updates enemy location on y axis 
+ * @param enemy enemy coordinates
+ * @param level map coordinates
+ */
 function resolveEnemyY(enemy: Enemy, level: Level) {
   enemy.grounded = false;
   const er: Rect = enemy;

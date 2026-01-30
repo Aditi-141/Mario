@@ -5,6 +5,10 @@ import { applyGravity, integrateX, integrateY } from "./physics";
 
 export type PlayerAudio = Pick<AudioHandle, "jump" | "land" | "coin" | "bump"|"ensure"|"resume">;
 
+/**
+ * This function helps to create.
+ * @returns returns players attributes.
+ */
 export function createPlayer(): Player {
   return {
     x: 60,
@@ -20,10 +24,22 @@ export function createPlayer(): Player {
   };
 }
 
+/**
+ * This function helps to spawn the Player
+ * @param p players attributes
+ */
 export function respawnPlayer(p: Player) {
   Object.assign(p, createPlayer());
 }
 
+/**
+ * This function helps to updates coordinates of players movement
+ * @param player player attributes
+ * @param level map coordinates
+ * @param input input from the user to move player
+ * @param audio sound created upon different actions
+ * @param dt delta time which is difference between from last updated frame
+ */
 export function updatePlayer(
   player: Player,
   level: Level,

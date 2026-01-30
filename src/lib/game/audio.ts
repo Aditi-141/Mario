@@ -7,6 +7,10 @@ export function createAudio(): AudioHandle {
   let master: GainNode | null = null;
   let ready = false;
 
+  /**
+   * Initializes the web audio system if it hasn't been initialized yet, setting up an AudioContext with a master gain node at 25% volume, and returns true if successful or false if the browser doesn't support audio.
+   * @returns boolean value
+   */
   function ensure() {
     if (ready) return true;
     const AudioCtx =

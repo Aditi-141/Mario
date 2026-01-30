@@ -26,20 +26,19 @@ export interface Level {
   coins: Coin[];
 }
 
-export interface Player extends Rect {
+export interface Character{
   vx: number;
   vy: number;
   grounded: boolean;
   facing: Facing;
+}
+
+export interface Player extends Rect, Character { 
   coyote: number;
   jumpsLeft: number;
 }
 
-export interface Enemy extends Rect {
-  vx: number;
-  vy: number;
-  grounded: boolean;
-  facing: Facing;
+export interface Enemy extends Rect, Character {
   alive: boolean;
 }
 
@@ -47,7 +46,6 @@ export interface InputState extends PlayerInput{
   jumpHeld: boolean;
 }
 
-/** A render surface: engine draws to `offCtx`, then calls `present()` */
 export type RenderSurface = {
   dpr: number;
   cssW: number;

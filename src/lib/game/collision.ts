@@ -6,14 +6,29 @@ import type { AudioHandle } from "./types";
 
 const EPS = 0.01;
 
+/**
+ * Position of player
+ * @param p attributes of player
+ * @returns attributes of player
+ */
 function rectOfPlayer(p: Player): Rect {
   return { x: p.x, y: p.y, w: p.w, h: p.h };
 }
 
+/**
+ * Calculates the x-coordinate of the center of a rectangle.
+ * @param r coordinates of rectangle
+ * @returns returns center of x
+ */
 function centerX(r: Rect) {
   return r.x + r.w / 2;
 }
 
+/**
+ * Calculates the y-coordinate of the center of a rectangle.
+ * @param r coordinates of rectangle
+ * @returns returns center of y 
+ */
 function centerY(r: Rect) {
   return r.y + r.h / 2;
 }
@@ -55,11 +70,11 @@ export function resolveX(player: Player, level: Level) {
     if (!aabbOverlap(rect, r)) continue;
 
     if (movingRight) {
-      // Player moving right -> hit left face of collider
+      // Player moving right hit left face of collider
       player.x = r.x - rect.w - EPS;
       player.vx = 0;
     } else if (movingLeft) {
-      // Player moving left -> hit right face of collider
+      // Player moving left hit right face of collider
       player.x = r.x + r.w + EPS;
       player.vx = 0;
     } else {

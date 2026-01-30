@@ -4,6 +4,10 @@ import { WORLD } from "./constants";
 export const GROUND_Y = 470;
 const TILE = 40;
 
+/**
+ * Creates Map for game
+ * @returns returns map
+ */
 export function createLevel(): Level {
   const pipe = {
     x: 820,

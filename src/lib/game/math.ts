@@ -2,7 +2,12 @@ import type { Rect } from "./types";
 
 export const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
-
+/**
+ * This is algorithm it tests whether two rectangles intersect.
+ * @param b coordinates of rectangle b.
+ * @param a coordinates of rectangle a.
+ * @returns 
+ */
 export const aabbOverlap = (a: Rect, b: Rect) =>
   a.x < b.x + b.w &&
   a.x + a.w > b.x &&
