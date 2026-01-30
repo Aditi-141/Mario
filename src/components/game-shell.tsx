@@ -11,7 +11,6 @@ const isJump = (code: string) => code === "Space" || code === "ArrowUp" || code 
 
 export function GameShell({
   running,
-  hud,
   canvasRef,
   onSurface,
   onStart,

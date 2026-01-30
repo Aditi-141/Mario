@@ -43,15 +43,8 @@ export interface Enemy extends Rect {
   alive: boolean;
 }
 
-export interface InputState {
-  left: boolean;
-  right: boolean;
+export interface InputState extends PlayerInput{
   jumpHeld: boolean;
-  jumpPressedThisFrame: boolean;
-  jump: boolean;
-  attack: boolean;
-  moveX: number;
-  moveY: number; 
 }
 
 /** A render surface: engine draws to `offCtx`, then calls `present()` */
@@ -59,10 +52,8 @@ export type RenderSurface = {
   dpr: number;
   cssW: number;
   cssH: number;
-
   offscreen: OffscreenCanvas | HTMLCanvasElement;
   offCtx: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-
   present(): void;
 };
 
@@ -113,3 +104,12 @@ export interface AudioHandle {
   bump(): void;
 };
 
+export interface PlayerInput {
+  left: boolean
+  right: boolean
+  jump: boolean
+  attack: boolean
+  jumpPressedThisFrame: boolean
+  moveX: number
+  moveY: number
+}

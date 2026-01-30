@@ -1,18 +1,7 @@
-// lib/game/player.ts
-import type { Player, Level, AudioHandle } from "./types";
+import type { Player, Level, AudioHandle, PlayerInput } from "./types";
 import { WORLD, MAX_JUMPS, COYOTE_TIME } from "./constants";
 import { resolveX, resolveY } from "./collision";
 import { applyGravity, integrateX, integrateY } from "./physics";
-
-export interface PlayerInput {
-  left: boolean
-  right: boolean
-  jump: boolean
-  attack: boolean
-  jumpPressedThisFrame: boolean
-  moveX: number
-  moveY: number
-}
 
 export type PlayerAudio = Pick<AudioHandle, "jump" | "land" | "coin" | "bump"|"ensure"|"resume">;
 
